@@ -1,0 +1,63 @@
+<UserControl x:Class="BatterySwapWPF.Views.Staff.CheckInPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:BatterySwapWPF.ViewModels.Staff"
+             Background="{DynamicResource MaterialDesignPaper}">
+    
+    <UserControl.DataContext>
+        <vm:CheckInViewModel/>
+    </UserControl.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Check-In" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+            <TextBlock Text="Process customer check-in" FontSize="14" Foreground="Gray" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500">
+            <StackPanel>
+                <materialDesign:PackIcon Kind="QrcodeScan" Width="100" Height="100" 
+                                        Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                        HorizontalAlignment="Center"/>
+                
+                <TextBlock Text="Enter Booking ID" FontSize="20" FontWeight="SemiBold" 
+                          HorizontalAlignment="Center" Margin="0,20,0,10"/>
+
+                <TextBox Text="{Binding BookingId, UpdateSourceTrigger=PropertyChanged}"
+                        materialDesign:HintAssist.Hint="Booking ID"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                        FontSize="16"
+                        Margin="0,10"/>
+
+                <Button Content="PROCESS CHECK-IN" 
+                       Command="{Binding CheckInCommand}"
+                       Style="{StaticResource MaterialDesignRaisedButton}"
+                       Height="48"
+                       FontSize="15"
+                       Margin="0,20"/>
+
+                <Border Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,20"
+                       Visibility="{Binding SuccessMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CheckCircle" Foreground="#2E7D32" Width="24" Height="24" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SuccessMessage}" Foreground="#2E7D32" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#FFEBEE" CornerRadius="8" Padding="15" Margin="0,20"
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AlertCircle" Foreground="#C62828" Width="24" Height="24" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#C62828" Margin="10,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
