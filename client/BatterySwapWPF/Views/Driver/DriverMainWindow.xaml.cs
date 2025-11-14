@@ -9,8 +9,13 @@ public partial class DriverMainWindow : Window
     {
         InitializeComponent();
         
-        // Navigate to My Vehicles by default
-        ContentFrame.Navigate(new MyVehiclesPage());
+        // Navigate to Create Booking by default
+        ContentFrame.Navigate(new CreateBookingPage());
+    }
+
+    private void BtnCreateBooking_Click(object sender, RoutedEventArgs e)
+    {
+        ContentFrame.Navigate(new CreateBookingPage());
     }
 
     private void Logout_Click(object sender, RoutedEventArgs e)

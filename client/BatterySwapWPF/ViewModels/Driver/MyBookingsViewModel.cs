@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using BatterySwapWPF.Services;
 using BatterySwapWPF.Models;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace BatterySwapWPF.ViewModels.Driver;
 
@@ -52,5 +53,18 @@ public partial class MyBookingsViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private void ViewQr(Booking booking)
+    {
+        if (string.IsNullOrEmpty(booking.QrCode))
+        {
+            MessageBox.Show("QR Code not available", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var qrWindow = new Views.Driver.QrCodeWindow(booking);
+        qrWindow.ShowDialog();
     }
 }

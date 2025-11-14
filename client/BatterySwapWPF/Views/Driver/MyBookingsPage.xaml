@@ -84,6 +84,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0">
@@ -131,6 +132,14 @@
                                                           VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </StackPanel>
+
+                                        <Button Grid.Column="2" 
+                                               Content="VIEW QR"
+                                               Style="{StaticResource MaterialDesignOutlinedButton}"
+                                               Command="{Binding DataContext.ViewQrCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                               CommandParameter="{Binding}"
+                                               VerticalAlignment="Center"
+                                               Visibility="{Binding QrCode, Converter={StaticResource NullToVisibilityConverter}}"/>
                                     </Grid>
                                 </Grid>
                             </materialDesign:Card>

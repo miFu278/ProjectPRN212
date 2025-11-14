@@ -43,6 +43,18 @@
                    BorderThickness="0,0,1,0">
                 <StackPanel Margin="0,20,0,0">
                     
+                    <Button x:Name="BtnCreateBooking"
+                           Click="BtnCreateBooking_Click"
+                           Style="{StaticResource MaterialDesignFlatButton}"
+                           HorizontalContentAlignment="Left"
+                           Padding="20,15"
+                           Height="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CalendarPlus" Width="24" Height="24" VerticalAlignment="Center"/>
+                            <TextBlock Text="Create Booking" FontSize="15" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
                     <Button x:Name="BtnMyVehicles"
                            Click="BtnMyVehicles_Click"
                            Style="{StaticResource MaterialDesignFlatButton}"
