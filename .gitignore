@@ -398,3 +398,7 @@ FodyWeavers.xsd
 
 # WPF specific
 *.Backup.tmp
+client/BatterySwapWPF/bin/
+client/BatterySwapWPF/obj/
+server/webAPI/bin/
+server/webAPI/obj/

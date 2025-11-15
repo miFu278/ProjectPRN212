@@ -57,6 +57,8 @@
                         <TextBlock Text="{Binding ErrorMessage}" Foreground="#C62828" Margin="10,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Booking details removed as requested -->
             </StackPanel>
         </Grid>
     </Grid>
