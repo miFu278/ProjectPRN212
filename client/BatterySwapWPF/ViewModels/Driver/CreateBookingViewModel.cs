@@ -10,6 +10,7 @@ public partial class CreateBookingViewModel : ObservableObject
 {
     private readonly VehicleService _vehicleService;
     private readonly BookingService _bookingService;
+    private readonly StationService _stationService;
 
     [ObservableProperty]
     private ObservableCollection<Vehicle> vehicles = new();
@@ -18,13 +19,16 @@ public partial class CreateBookingViewModel : ObservableObject
     private Vehicle? selectedVehicle;
 
     [ObservableProperty]
-    private string? stationName;
+    private ObservableCollection<Station> stations = new();
+
+    [ObservableProperty]
+    private Station? selectedStation;
 
     [ObservableProperty]
     private DateTime? bookingDate = DateTime.Today;
 
     [ObservableProperty]
-    private TimeSpan? bookingTime = DateTime.Now.TimeOfDay;
+    private DateTime? bookingTime = DateTime.Now;
 
     [ObservableProperty]
     private bool isLoading;
@@ -39,7 +43,9 @@ public partial class CreateBookingViewModel : ObservableObject
     {
         _vehicleService = new VehicleService();
         _bookingService = new BookingService();
+        _stationService = new StationService();
         _ = LoadVehiclesAsync();
+        _ = LoadStationsAsync();
     }
 
     private async Task LoadVehiclesAsync()
@@ -57,6 +63,21 @@ public partial class CreateBookingViewModel : ObservableObject
         catch { }
     }
 
+    private async Task LoadStationsAsync()
+    {
+        try
+        {
+            var result = await _stationService.GetStationsAsync();
+            if (result != null)
+            {
+                Stations.Clear();
+                foreach (var st in result)
+                    Stations.Add(st);
+            }
+        }
+        catch { }
+    }
+
     [RelayCommand]
     private async Task CreateBookingAsync()
     {
@@ -69,9 +90,9 @@ public partial class CreateBookingViewModel : ObservableObject
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(StationName))
+        if (SelectedStation == null)
         {
-            ErrorMessage = "Please enter station name";
+            ErrorMessage = "Please select a station";
             return;
         }
 
@@ -81,16 +102,33 @@ public partial class CreateBookingViewModel : ObservableObject
             return;
         }
 
+        // Combine date and time and validate: cannot book in the past, and booking must be for today only.
+        var combinedBooking = BookingDate.Value.Date + BookingTime.Value.TimeOfDay;
+        var now = DateTime.Now;
+
+        if (combinedBooking < now)
+        {
+            ErrorMessage = "Cannot create booking in the past";
+            return;
+        }
+
+        if (combinedBooking.Date != now.Date)
+        {
+            ErrorMessage = "Bookings are only allowed for today";
+            return;
+        }
+
         IsLoading = true;
 
         try
         {
-            var bookingDateTime = BookingDate.Value.Date + BookingTime.Value;
+            // BookingTime is a DateTime (time part used). Combine date and time parts
+            var bookingDateTime = BookingDate.Value.Date + BookingTime.Value.TimeOfDay;
             var bookingTimeStr = bookingDateTime.ToString("yyyy-MM-ddTHH:mm");
 
             var request = new CreateBookingRequest
             {
-                stationName = StationName,
+                stationName = SelectedStation?.Name,
                 vehicleId = SelectedVehicle.VehicleId,
                 bookingTime = bookingTimeStr
             };
@@ -103,9 +141,9 @@ public partial class CreateBookingViewModel : ObservableObject
                 
                 // Reset form
                 SelectedVehicle = null;
-                StationName = null;
+                SelectedStation = null;
                 BookingDate = DateTime.Today;
-                BookingTime = DateTime.Now.TimeOfDay;
+                BookingTime = DateTime.Now;
             }
             else
             {

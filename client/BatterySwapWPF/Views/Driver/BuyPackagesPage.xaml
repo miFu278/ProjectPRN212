@@ -1,0 +1,45 @@
+<UserControl x:Class="BatterySwapWPF.Views.Driver.BuyPackagesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:BatterySwapWPF.ViewModels.Driver"
+             xmlns:local="clr-namespace:BatterySwapWPF.Views.Driver"
+             Height="Auto" Width="Auto">
+
+    <UserControl.DataContext>
+        <vm:BuyPackagesViewModel />
+    </UserControl.DataContext>
+
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="Buy Packages" FontSize="26" FontWeight="Bold" Foreground="Black" />
+            <TextBlock Text="Choose a battery package and buy via VNPay" Foreground="Gray" Margin="0,5,0,15" />
+
+            <Button Content="Refresh" Command="{Binding LoadPackagesCommand}" Width="100" Margin="0,0,0,10" />
+
+            <ItemsControl ItemsSource="{Binding Packages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="120" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Description}" Foreground="Gray" TextWrapping="Wrap" />
+                                    <TextBlock Text="Price: {Binding Price}" FontWeight="Bold" Margin="0,6,0,0" />
+                                </StackPanel>
+
+                                <Button Grid.Column="1" Width="100" Height="36" Content="Buy" Margin="8,0,0,0"
+                                        Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Grid>
+</UserControl>

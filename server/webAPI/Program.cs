@@ -7,6 +7,7 @@ using System.Text;
 using webAPI.Models;
 using webAPI.Services;
 using webAPI.Data;               // DbContext BatterySwapContext
+using webAPI.Config;
 // using webAPI.Controllers.Secure; // không bắt buộc, có cũng được
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,6 +74,27 @@ if (string.IsNullOrWhiteSpace(connStr))
 
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "";
 Console.WriteLine($"[CFG] Jwt:Secret length = {jwtSecret.Length}");
+
+/* ============ VNPay settings (from appsettings.json) ============ */
+try
+{
+    var cfg = builder.Configuration;
+    VnPayConfig.vnp_PayUrl = cfg["VnPay:vnp_PayUrl"] ?? VnPayConfig.vnp_PayUrl;
+    VnPayConfig.vnp_TmnCode = cfg["VnPay:vnp_TmnCode"] ?? VnPayConfig.vnp_TmnCode;
+    VnPayConfig.vnp_HashSecret = cfg["VnPay:vnp_HashSecret"] ?? VnPayConfig.vnp_HashSecret;
+    VnPayConfig.vnp_ReturnUrl = cfg["VnPay:vnp_ReturnUrl"] ?? VnPayConfig.vnp_ReturnUrl;
+
+    VnPayConfigSwap.vnp_PayUrl = cfg["VnPaySwap:vnp_PayUrl"] ?? VnPayConfigSwap.vnp_PayUrl;
+    VnPayConfigSwap.vnp_TmnCode = cfg["VnPaySwap:vnp_TmnCode"] ?? VnPayConfigSwap.vnp_TmnCode;
+    VnPayConfigSwap.vnp_HashSecret = cfg["VnPaySwap:vnp_HashSecret"] ?? VnPayConfigSwap.vnp_HashSecret;
+    VnPayConfigSwap.vnp_ReturnUrl = cfg["VnPaySwap:vnp_ReturnUrl"] ?? VnPayConfigSwap.vnp_ReturnUrl;
+
+    Console.WriteLine($"[CFG] VnPay: TmnCode length = {VnPayConfig.vnp_TmnCode?.Length ?? 0}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("[CFG] VNPay config binding failed: " + ex.Message);
+}
 
 /* ============ DbContext (debug on) ============ */
 builder.Services.AddDbContext<BatterySwapContext>(opt =>

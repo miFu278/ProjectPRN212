@@ -34,10 +34,12 @@
 
                 <!-- Station Name -->
                 <TextBlock Text="Station Name" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                <TextBox Text="{Binding StationName, UpdateSourceTrigger=PropertyChanged}"
-                        materialDesign:HintAssist.Hint="e.g., Central Park"
-                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                        Margin="0,0,0,20"/>
+                <ComboBox ItemsSource="{Binding Stations}"
+                     SelectedItem="{Binding SelectedStation}"
+                     DisplayMemberPath="Name"
+                     materialDesign:HintAssist.Hint="Choose a station"
+                     Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                     Margin="0,0,0,20"/>
 
                 <!-- Booking Date and Time -->
                 <TextBlock Text="Booking Date and Time" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
