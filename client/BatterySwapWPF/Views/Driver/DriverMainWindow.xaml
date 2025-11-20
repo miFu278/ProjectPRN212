@@ -103,6 +103,18 @@
                         </StackPanel>
                     </Button>
 
+                    <Button x:Name="BtnBuyPackages"
+                           Click="BtnBuyPackages_Click"
+                           Style="{StaticResource MaterialDesignFlatButton}"
+                           HorizontalContentAlignment="Left"
+                           Padding="20,15"
+                           Height="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CurrencyUsd" Width="24" Height="24" VerticalAlignment="Center"/>
+                            <TextBlock Text="Buy Packages" FontSize="15" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
                 </StackPanel>
             </Border>
 

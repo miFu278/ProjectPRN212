@@ -45,4 +45,9 @@ public partial class DriverMainWindow : Window
     {
         ContentFrame.Navigate(new PackageHistoryPage());
     }
+
+    private void BtnBuyPackages_Click(object sender, RoutedEventArgs e)
+    {
+        ContentFrame.Navigate(new BuyPackagesPage());
+    }
 }

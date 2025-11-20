@@ -16,20 +16,26 @@ public class StationService
         _httpClient = new HttpClient();
     }
 
-    public async Task<List<Station>?> GetAllStationsAsync()
+    /// <summary>
+    /// Get station list from API. If <paramref name="requireAuth"/> is true,
+    /// the method will attach saved JWT token from <see cref="SecureStorage"/>.
+    /// </summary>
+    public async Task<List<Station>?> GetStationsAsync(bool activeOnly = true, bool requireAuth = false)
     {
         try
         {
-            var token = SecureStorage.GetToken();
-            if (string.IsNullOrEmpty(token))
-                return null;
+            var url = $"{BaseUrl}/api/stations" + (activeOnly ? "?activeOnly=true" : string.Empty);
 
-            _httpClient.DefaultRequestHeaders.Authorization = 
-                new AuthenticationHeaderValue("Bearer", token);
+            if (requireAuth)
+            {
+                var token = SecureStorage.GetToken();
+                if (string.IsNullOrEmpty(token))
+                    return null;
 
-            // Assuming there's an API endpoint for stations
-            var response = await _httpClient.GetAsync($"{BaseUrl}/api/stations");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
 
+            var response = await _httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<List<Station>>();

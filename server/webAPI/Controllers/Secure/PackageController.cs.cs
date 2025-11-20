@@ -8,10 +8,12 @@ namespace webAPI.Controllers.Secure
     public class PackageController : ControllerBase
     {
         private readonly PackageService _svc;
+        private readonly DriverPackageService _driverPkgSvc;
 
-        public PackageController(PackageService svc)
+        public PackageController(PackageService svc, DriverPackageService driverPkgSvc)
         {
             _svc = svc;
+            _driverPkgSvc = driverPkgSvc;
         }
 
         /// <summary>
@@ -35,6 +37,28 @@ namespace webAPI.Controllers.Secure
                     status = "error",
                     message = "Server error: " + e.Message
                 });
+            }
+        }
+
+        /// <summary>
+        /// GET /api/checkpackage?userId=123
+        /// Returns { status: "success", data: true|false }
+        /// </summary>
+        [HttpGet("api/checkpackage")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckPackage([FromQuery] int userId)
+        {
+            try
+            {
+                if (userId <= 0)
+                    return BadRequest(new { status = "error", message = "Missing or invalid userId" });
+
+                var has = await _driverPkgSvc.ExistsAsync(userId);
+                return Ok(new { status = "success", data = has });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { status = "error", message = "Server error: " + e.Message });
             }
         }
 

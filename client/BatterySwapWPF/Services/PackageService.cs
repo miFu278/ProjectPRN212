@@ -41,4 +41,52 @@ public class PackageService
             return null;
         }
     }
+
+    // Call public endpoint /api/getpackages which returns wrapper { status, data }
+    public async Task<List<Package>?> GetPublicPackagesAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{BaseUrl}/api/getpackages");
+            if (!response.IsSuccessStatusCode) return null;
+
+            var wrapper = await response.Content.ReadFromJsonAsync<PublicPackagesResponse>();
+            return wrapper?.data;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool?> CheckUserHasPackageAsync(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{BaseUrl}/api/checkpackage?userId={userId}");
+            if (!response.IsSuccessStatusCode) return null;
+
+            var wrapper = await response.Content.ReadFromJsonAsync<CheckPackageResponse>();
+            return wrapper?.data;
+        }
+        catch
+        {
+            return null;
+        }
+
+    }
+
+}
+
+// Local DTOs to parse public API responses
+internal class PublicPackagesResponse
+{
+    public string? status { get; set; }
+    public List<Package>? data { get; set; }
+}
+
+internal class CheckPackageResponse
+{
+    public string? status { get; set; }
+    public bool data { get; set; }
 }
