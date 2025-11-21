@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using BatterySwapWPF.Helpers;
+ 
 
 namespace BatterySwapWPF.ViewModels.Staff;
 
@@ -16,6 +17,8 @@ public partial class CheckInViewModel : ObservableObject
 
     [ObservableProperty]
     private string? errorMessage;
+
+    // Booking details display removed per user request
 
     [RelayCommand]
     private async Task CheckInAsync()
@@ -48,15 +51,57 @@ public partial class CheckInViewModel : ObservableObject
 
             var response = await httpClient.PostAsync($"http://localhost:5187/api/CheckIn", content);
 
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            // The server sometimes returns HTTP 200 with an error object { "error": "..." }.
+            // Treat such responses as failures by inspecting the JSON body.
             if (response.IsSuccessStatusCode)
             {
+                bool hasError = false;
+                try
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(responseText);
+                    if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        if (doc.RootElement.TryGetProperty("error", out var err))
+                        {
+                            ErrorMessage = err.GetString() ?? "Check-in failed";
+                            hasError = true;
+                        }
+                        else if (doc.RootElement.TryGetProperty("status", out var statusProp))
+                        {
+                            var st = statusProp.GetString();
+                            if (!string.IsNullOrEmpty(st) && st.Equals("fail", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Try to get message or error field
+                                if (doc.RootElement.TryGetProperty("message", out var msg))
+                                    ErrorMessage = msg.GetString();
+                                else if (doc.RootElement.TryGetProperty("error", out var err2))
+                                    ErrorMessage = err2.GetString();
+                                else
+                                    ErrorMessage = "Check-in failed (server returned fail).";
+                                hasError = true;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore JSON parse errors, fall back to plain text checks
+                }
+
+                if (hasError)
+                {
+                    return;
+                }
+
+                // No error field found - treat as success
                 SuccessMessage = $"Check-in successful for booking #{BookingId}";
                 BookingId = string.Empty;
             }
             else
             {
-                var error = await response.Content.ReadAsStringAsync();
-                ErrorMessage = $"Check-in failed: {error}";
+                ErrorMessage = $"Check-in failed: {responseText}";
             }
         }
         catch (Exception ex)
@@ -64,4 +109,6 @@ public partial class CheckInViewModel : ObservableObject
             ErrorMessage = $"Error: {ex.Message}";
         }
     }
+
+    // Booking details loader removed; UI no longer shows booking info
 }

@@ -16,6 +16,8 @@ public partial class BuyPackagesViewModel : ObservableObject
 
     [ObservableProperty]
     private bool isLoading;
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
 
     public BuyPackagesViewModel()
     {
@@ -33,8 +35,17 @@ public partial class BuyPackagesViewModel : ObservableObject
         IsLoading = true;
         Packages.Clear();
         var list = await _pkgSvc.GetPublicPackagesAsync();
-        if (list != null)
+        if (list == null)
         {
+            StatusMessage = "Không thể tải danh sách gói (kiểm tra server).";
+        }
+        else if (list.Count == 0)
+        {
+            StatusMessage = "Hiện chưa có gói pin nào.";
+        }
+        else
+        {
+            StatusMessage = string.Empty;
             foreach (var p in list) Packages.Add(p);
         }
         IsLoading = false;
@@ -43,22 +54,36 @@ public partial class BuyPackagesViewModel : ObservableObject
     private void OnBuyClicked(Package? pkg)
     {
         if (pkg == null) return;
+        _ = BuyPackageAsync(pkg);
+    }
 
-        var token = SecureStorage.GetToken();
-        var userId = 0;
-        if (!string.IsNullOrEmpty(token)) userId = Helpers.JwtHelper.GetUserId(token);
-
-        // Build payment URL to server which will redirect to VNPay
-        var baseUrl = "http://localhost:5187";
-        var url = $"{baseUrl}/api/payment?userId={userId}&packageId={pkg.PackageId}&orderType=buyPackage";
-
+    private async Task BuyPackageAsync(Package pkg)
+    {
+        IsLoading = true;
         try
         {
-            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+            var token = SecureStorage.GetToken();
+            var userId = 0;
+            if (!string.IsNullOrEmpty(token)) userId = Helpers.JwtHelper.GetUserId(token);
+
+            var paymentUrl = await _pkgSvc.GetPaymentUrlAsync(userId, pkg.PackageId);
+            if (!string.IsNullOrEmpty(paymentUrl))
+            {
+                StatusMessage = "Opening VNPay checkout...";
+                Process.Start(new ProcessStartInfo { FileName = paymentUrl, UseShellExecute = true });
+            }
+            else
+            {
+                StatusMessage = "Không thể lấy URL thanh toán từ server. Kiểm tra log server.";
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // swallow errors for now
+            StatusMessage = "Lỗi khi tạo thanh toán: " + ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 }

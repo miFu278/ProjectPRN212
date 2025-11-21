@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BatterySwapWPF.Helpers;
 using BatterySwapWPF.Models;
+using System.Net;
 
 namespace BatterySwapWPF.Services;
 
@@ -74,6 +75,31 @@ public class PackageService
             return null;
         }
 
+    }
+
+    public async Task<string?> GetPaymentUrlAsync(int userId, int packageId)
+    {
+        try
+        {
+            // Use handler that does not follow redirects so we can read Location header
+            var handler = new HttpClientHandler { AllowAutoRedirect = false };
+            using var client = new HttpClient(handler);
+
+            var response = await client.GetAsync($"{BaseUrl}/api/payment?userId={userId}&packageId={packageId}&orderType=buyPackage");
+
+            if (response.StatusCode == HttpStatusCode.Redirect || response.StatusCode == HttpStatusCode.Found)
+            {
+                return response.Headers.Location?.ToString();
+            }
+
+            // If not redirect, return response body for debugging
+            var txt = await response.Content.ReadAsStringAsync();
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
 }
